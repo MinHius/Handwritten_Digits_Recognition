@@ -2,64 +2,67 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
-# get mnist data and cache it 
+# Lấy bộ dữ liệu mnist và cache.
 def get_mnist_data():
-    # get mnist data 
+    
+    # Lấy bộ dữ liệu mnist. 
     path = 'mnist.npz'
 
-    # get data - this will be cached 
+    # Cache.
     mnist = tf.keras.datasets.mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data(path=path)
     return x_train, y_train, x_test, y_test
 
-# train model with mnist data 
+# Huấn luyện mô hình với bộ dữ liệu mnist. 
 def train_model(x_train, y_train, x_test, y_test):
-    # set up TF model and train 
-    # callback 
+    
+    # Lặp cho tới khi độ chính xác > 99%.
     class myCallback(tf.keras.callbacks.Callback):
         def on_epoch_end(self, epoch, logs={}):
             if logs.get('accuracy') > 0.99:
                 print("\nReached 99% accuracy, stopping training!")
-                self.model.stop_training = True
-                
+                self.model.stop_training = True    
     callbacks = myCallback()
 
-    # normalize 
+    # Chuẩn hóa dữ liệu.
     x_train, x_test = x_train / 255.0, x_test / 255.0
 
-    # create model 
+    # Tạo mô hình CNN với lớp Flatten và 2 lớp Dense.
     model = tf.keras.models.Sequential([
         tf.keras.layers.Flatten(input_shape=(28, 28)),
         tf.keras.layers.Dense(512, activation=tf.nn.relu),
         tf.keras.layers.Dense(10, activation=tf.nn.softmax)
     ])
 
+    # Hàm tối ưu ADAM, hàm mất mát sparse categorical crossentropy, đánh giá mô hình bằng accuracy.
     model.compile(optimizer='adam',
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
     print(model.summary())
 
-    # fit model
+    # Fit mô hình.
     history = model.fit(x_train, y_train, epochs=10, callbacks=[callbacks])
-    # stats 
+ 
     print(history.epoch, history.history['accuracy'][-1])
     return model
 
-# predict digit using image passed in 
+# Dự đoán chữ số trong ảnh thu được.
 def predict(model, img):
     imgs = np.array([img])
     res = model.predict(imgs)
     index = np.argmax(res)
     return str(index)
 
-# opencv part 
+# Phần code của OpenCV.
 startInference = False
 
+# Nếu click vào màn hình thì ứng dụng sẽ bắt đầu lấy ảnh.
 def ifClicked(event, x, y, flags, params):
     global startInference
     if event == cv2.EVENT_LBUTTONDOWN:
         startInference = not startInference
 
+# Mở webcam và capture ảnh.
 def start_cv(model):
     global startInference
     cap = cv2.VideoCapture(0)
@@ -68,8 +71,9 @@ def start_cv(model):
 
     background = np.zeros((480, 640), np.uint8)
     frameCount = 0
-
-    threshold = 150  # Fixed threshold value
+    
+    # Threshold.
+    threshold = 150  
 
     while True:
         ret, frame = cap.read()
@@ -88,6 +92,7 @@ def start_cv(model):
 
             iconImg = cv2.resize(resizedFrame, (28, 28))
             
+            # Dự đoán ảnh vừa thu được.
             res = predict(model, iconImg)
 
             if frameCount == 5:
@@ -107,12 +112,15 @@ def start_cv(model):
     cap.release()
     cv2.destroyAllWindows()
 
+# Hàm main.
 def main():
     model = None
+    # Nếu đã có model, không cần phải train nữa mà chạy model luôn.
     try:
         model = tf.keras.models.load_model('model.h5')
         print('Loaded saved model.')
         print(model.summary())
+    # Không có model thì sẽ huấn luyện model mới.
     except:
         print("Getting mnist data...")
         (x_train, y_train, x_test, y_test) = get_mnist_data()
@@ -124,6 +132,7 @@ def main():
     print("Starting cv...")
     start_cv(model)
 
+# Khởi chạy.
 if __name__ == '__main__':
     main()
 

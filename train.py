@@ -1,5 +1,3 @@
-import cv2
-import numpy as np
 import tensorflow as tf
 
 # Lấy bộ dữ liệu mnist và cache.
@@ -33,8 +31,7 @@ def train_model(x_train, y_train, x_test, y_test):
         tf.keras.layers.Dense(512, activation=tf.nn.relu),
         tf.keras.layers.Dense(10, activation=tf.nn.softmax)
     ])
-
-    # Hàm tối ưu ADAM, hàm mất mát sparse categorical crossentropy, đánh giá mô hình bằng accuracy.
+    
     model.compile(optimizer='adam',
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])

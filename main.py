@@ -22,6 +22,12 @@ def ifClicked(event, x, y, flags, params):
     if event == cv2.EVENT_LBUTTONDOWN:
         startInference = not startInference
 
+# threshold slider handler 
+threshold = 100
+def on_threshold(x):
+    global threshold
+    threshold = x
+
 # Mở webcam và capture ảnh.
 def start_cv(model):
     global threshold

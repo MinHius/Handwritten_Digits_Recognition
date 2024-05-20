@@ -56,8 +56,8 @@ def start_cv(model):
            
 
             # get central image 
-            resizedFrame = thr[240-75:240+75, 320-75:320+75]
-            background[240-75:240+75, 320-75:320+75] = resizedFrame
+            resizedFrame = thr[120:360, 200:440]  # Adjusted the region of interest
+            background[120:360, 200:440] = resizedFrame  # Adjusted the region of interest
 
             # resize for inference 
             iconImg = cv2.resize(resizedFrame, (28, 28))
@@ -72,7 +72,7 @@ def start_cv(model):
 
             # show text 
             cv2.putText(background, res, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3)
-            cv2.rectangle(background, (320-80, 240-80), (320+80, 240+80), (255, 255, 255), thickness=3)
+            cv2.rectangle(background, (200, 120), (440, 360), (255, 255, 255), thickness=3)  # Adjusted the region of interest
             
             # display frame 
             cv2.imshow('background', background)
@@ -86,6 +86,7 @@ def start_cv(model):
 
     cap.release()
     cv2.destroyAllWindows()
+
 
 
 

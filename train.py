@@ -1,59 +1,63 @@
-import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
 import tensorflow as tf
 
-# Lấy bộ dữ liệu MNIST và cache.
+# Lấy bộ dữ liệu mnist và cache.
 def get_mnist_data():
-    # Lấy bộ dữ liệu mnist
+    
+    # Lấy bộ dữ liệu mnist. 
     path = 'mnist.npz'
+
+    # Cache.
     mnist = tf.keras.datasets.mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data(path=path)
-    
-    # Chuẩn hóa dữ liệu
-    x_train = x_train.reshape(-1, 28*28) / 255.0
-    x_test = x_test.reshape(-1, 28*28) / 255.0
-    
     return x_train, y_train, x_test, y_test
 
-# Huấn luyện mô hình với bộ dữ liệu mnist
+# Huấn luyện mô hình với bộ dữ liệu mnist. 
 def train_model(x_train, y_train, x_test, y_test):
-    # Khởi tạo mô hình Logistic Regression
-    model = LogisticRegression(max_iter=1000, solver='lbfgs', multi_class='auto')
+    
+    # Lặp cho tới khi độ chính xác > 99%.
+    class myCallback(tf.keras.callbacks.Callback):
+        def on_epoch_end(self, epoch, logs={}):
+            if logs.get('accuracy') > 0.99:
+                print("\nReached 99% accuracy, stopping training!")
+                self.model.stop_training = True    
+    callbacks = myCallback()
 
-    # Huấn luyện mô hình
-    model.fit(x_train, y_train)
+    # Chuẩn hóa dữ liệu.
+    x_train, x_test = x_train / 255.0, x_test / 255.0
 
-    # Dự đoán trên tập kiểm tra
-    y_pred = model.predict(x_test)
+    # Tạo mô hình CNN với lớp Flatten và 2 lớp Dense.
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        tf.keras.layers.Dense(512, activation=tf.nn.relu),
+        tf.keras.layers.Dense(10, activation=tf.nn.softmax)
+    ])
+    
+    model.compile(optimizer='adam',
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+    print(model.summary())
 
-    # Tính độ chính xác
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f'Accuracy: {accuracy}')
-
+    # Fit mô hình.
+    history = model.fit(x_train, y_train, epochs=10, callbacks=[callbacks])
+ 
+    print(history.epoch, history.history['accuracy'][-1])
     return model
 
-# Hàm main
+# Hàm main.
 def main():
     model = None
     
-    # Lấy dữ liệu MNIST
+    # Huấn luyện model.
     print("Getting mnist data...")
-    x_train, y_train, x_test, y_test = get_mnist_data()
-    
-    # Huấn luyện model
+    (x_train, y_train, x_test, y_test) = get_mnist_data()
     print("Training model...")
     model = train_model(x_train, y_train, x_test, y_test)
-    
-    # Lưu mô hình
     print("Saving model...")
-    import joblib
-    joblib.dump(model, 'model.pkl')
+    model.save('model.h5')
 
-# Khởi chạy
+# Khởi chạy.
 if __name__ == '__main__':
     main()
-
 
 
 

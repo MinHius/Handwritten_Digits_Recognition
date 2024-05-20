@@ -1,3 +1,5 @@
+# Người thực hiện: Trịnh Minh Hiếu.
+
 import cv2
 import numpy as np
 import tensorflow as tf

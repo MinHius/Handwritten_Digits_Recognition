@@ -1,3 +1,5 @@
+# Người thực hiện: Hoàng Ngọc Hào.
+
 import tensorflow as tf
 
 # Lấy bộ dữ liệu mnist và cache.

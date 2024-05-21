@@ -74,7 +74,7 @@ def start_cv(model):
 
             # In ra dự đoán ở góc màn hình.
             cv2.putText(background, res, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3)
-            cv2.rectangle(background, (200, 120), (440, 360), (255, 255, 255), thickness=3)  # Adjusted the region of interest
+            cv2.rectangle(background, (200, 120), (440, 360), (255, 255, 255), thickness=3) 
             
             # Áp dụng khung giới hạn màu đen.
             cv2.imshow('background', background)

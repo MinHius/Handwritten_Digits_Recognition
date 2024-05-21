@@ -92,7 +92,7 @@ def start_cv(model):
 
 
 
-
+# Chạy phần mềm.
 def run():
     # Gọi model với hàm softmax.
     model = tf.keras.models.load_model('model.h5', custom_objects={'softmax_v2': softmax_v2})
@@ -100,4 +100,5 @@ def run():
     print(model.summary())  
     start_cv(model)
     
+# Khởi chạy.
 run()
